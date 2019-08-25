@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.projeto.api.event.RecursoCriadoEvent;
 import com.example.projeto.api.model.Categoria;
 import com.example.projeto.api.repository.CategoriaRepository;
 
@@ -28,6 +30,9 @@ public class CategoriaResource {
 	
 	@Autowired
 	CategoriaRepository categoriaRepository;
+
+	@Autowired
+	private ApplicationEventPublisher publisher;
 	
 	@GetMapping
 	public List<Categoria> listarCategorias() {
@@ -38,18 +43,15 @@ public class CategoriaResource {
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Categoria> criarCategoria(@Valid @RequestBody Categoria categorias, HttpServletResponse response){
 		Categoria categoriaSalva = categoriaRepository.save(categorias);
-		
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}")
-				.buildAndExpand(categoriaSalva.getCodigo()).toUri();
-		response.setHeader("Location", uri.toASCIIString());
-		
-		return ResponseEntity.created(uri).body(categoriaSalva);
+		publisher.publishEvent(new RecursoCriadoEvent(this, response, categoriaSalva.getCodigo()));
+		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalva);
 		
 	}
 	
 	@GetMapping("/{codigo}")
 	public Optional<Categoria> listarPorCodigo(@PathVariable Long codigo) {
 		return categoriaRepository.findById(codigo);
+		//return pessoa != null ? ReponseEntity.ok(pessoa) ? ResponseEntity.notFound().build();
 	}
 	
 	

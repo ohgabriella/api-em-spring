@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.projeto.api.event.RecursoCriadoEvent;
 import com.example.projeto.api.model.Pessoa;
 import com.example.projeto.api.repository.PessoaRepository;
 
@@ -29,6 +31,9 @@ public class PessoaResource {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	
 	@GetMapping
 	public List<Pessoa> listarPessoa() {
 		return pessoaRepository.findAll();
@@ -38,12 +43,8 @@ public class PessoaResource {
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Pessoa> criarPessoa(@Valid @RequestBody Pessoa pessoas, HttpServletResponse response) {
 		Pessoa pessoaSalva = pessoaRepository.save(pessoas);
-
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}")
-				.buildAndExpand(pessoaSalva.getCodigo()).toUri();
-		response.setHeader("Location", uri.toASCIIString());
-
-		return ResponseEntity.created(uri).body(pessoaSalva);
+		publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getCodigo()));
+		return ResponseEntity.status(HttpStatus.CREATED).body(pessoaSalva);
 	}
 	
 	@GetMapping("/{codigo}")
