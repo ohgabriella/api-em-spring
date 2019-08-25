@@ -19,38 +19,35 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.example.projeto.api.model.Categoria;
-import com.example.projeto.api.repository.CategoriaRepository;
+import com.example.projeto.api.model.Pessoa;
+import com.example.projeto.api.repository.PessoaRepository;
 
 @RestController
-@RequestMapping("/categoria")
-public class CategoriaResource {
-	
+@RequestMapping("/pessoa")
+public class PessoaResource {
+
 	@Autowired
-	CategoriaRepository categoriaRepository;
-	
+	private PessoaRepository pessoaRepository;
+
 	@GetMapping
-	public List<Categoria> listarCategorias() {
-		return categoriaRepository.findAll();
+	public List<Pessoa> listarPessoa() {
+		return pessoaRepository.findAll();
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<Categoria> criarCategoria(@Valid @RequestBody Categoria categorias, HttpServletResponse response){
-		Categoria categoriaSalva = categoriaRepository.save(categorias);
-		
+	public ResponseEntity<Pessoa> criarPessoa(@Valid @RequestBody Pessoa pessoas, HttpServletResponse response) {
+		Pessoa pessoaSalva = pessoaRepository.save(pessoas);
+
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}")
-				.buildAndExpand(categoriaSalva.getCodigo()).toUri();
+				.buildAndExpand(pessoaSalva.getCodigo()).toUri();
 		response.setHeader("Location", uri.toASCIIString());
-		
-		return ResponseEntity.created(uri).body(categoriaSalva);
-		
+
+		return ResponseEntity.created(uri).body(pessoaSalva);
 	}
 	
 	@GetMapping("/{codigo}")
-	public Optional<Categoria> listarPorCodigo(@PathVariable Long codigo) {
-		return categoriaRepository.findById(codigo);
+	public Optional<Pessoa> listarPessoaPorCodigo(@PathVariable Long codigo) {
+		return pessoaRepository.findById(codigo);
 	}
-	
-	
 }
