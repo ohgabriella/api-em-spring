@@ -65,15 +65,9 @@ public class PessoaResource {
 	}
 
 	@PutMapping("/{codigo}")
-	public ResponseEntity<Optional<Pessoa>> atualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
-		Optional<Pessoa> pessoaSalva = pessoaRepository.findById(codigo);
-		if(pessoaSalva == null) {
-			throw new EmptyResultDataAccessException(1);
-		}
-		BeanUtils.copyProperties(pessoa, pessoaSalva, "codigo");
-		pessoaRepository.save(pessoaSalva);
-		return ResponseEntity.ok(pessoaSalva);
+	public ResponseEntity<Pessoa> atualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
+		Pessoa pessoaAtualizada = pessoaService.atualizar(pessoa, codigo);
+		return ResponseEntity.ok(pessoaAtualizada);
 
-		
 	}
 }
