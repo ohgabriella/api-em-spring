@@ -6,6 +6,5 @@ import com.example.projeto.api.model.Pessoa;
 
 public interface PessoaRepository extends JpaRepository<Pessoa, Long>{
 
-	Pessoa findOne(Long codigo);
 
 }
