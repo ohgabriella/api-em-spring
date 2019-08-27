@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.projeto.api.event.RecursoCriadoEvent;
 import com.example.projeto.api.model.Pessoa;
 import com.example.projeto.api.repository.PessoaRepository;
+import com.example.projeto.api.service.PessoaService;
 
 @RestController
 @RequestMapping("/pessoa")
@@ -35,7 +36,10 @@ public class PessoaResource {
 
 	@Autowired
 	private ApplicationEventPublisher publisher;
-	
+
+	@Autowired
+	private PessoaService pessoaService;
+
 	@GetMapping
 	public List<Pessoa> listarPessoa() {
 		return pessoaRepository.findAll();
@@ -48,26 +52,23 @@ public class PessoaResource {
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getCodigo()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(pessoaSalva);
 	}
-	
+
 	@GetMapping("/{codigo}")
 	public Optional<Pessoa> listarPessoaPorCodigo(@PathVariable Long codigo) {
 		return pessoaRepository.findById(codigo);
 	}
-	
+
 	@DeleteMapping("/{codigo}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long codigo) {
 		pessoaRepository.deleteById(codigo);
 	}
-	
+
 	@PutMapping("/{codigo}")
-	public ResponseEntity<Pessoa> atualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa){
-		Pessoa pessoaSalva = pessoaRepository.findOne(codigo);
-		if(pessoaSalva == null) {
-			throw new EmptyResultDataAccessException(1);
-		}
-		BeanUtils.copyProperties(pessoa, pessoaSalva, "codigo");
-		pessoaRepository.save(pessoaSalva);
+	public ResponseEntity<Pessoa> atualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
+		Pessoa pessoaSalva = pessoaService.atualizar(pessoa, codigo);
 		return ResponseEntity.ok(pessoaSalva);
+
+		
 	}
 }
