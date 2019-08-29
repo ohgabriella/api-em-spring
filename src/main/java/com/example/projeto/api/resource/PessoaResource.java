@@ -68,6 +68,37 @@ public class PessoaResource {
 	public ResponseEntity<Pessoa> atualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
 		Pessoa pessoaAtualizada = pessoaService.atualizar(pessoa, codigo);
 		return ResponseEntity.ok(pessoaAtualizada);
-
-	}
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+																	}
+	
+	
 }
